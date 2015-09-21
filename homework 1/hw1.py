@@ -25,7 +25,7 @@ class Queue:
 
 
 # initial
-class Web_Crawl:
+class Web_Crawl():
     def __init__(self):
         # used for crawling
         self.start_seed = "http://en.wikipedia.org/wiki/Hugh_of_Saint-Cher"
@@ -37,12 +37,12 @@ class Web_Crawl:
         self.page_limit = 1000
         self.depth_limit = 5
 
-        self.outputfile = r"/Users/lijian/"
+
         self.Main_Page = r"/wiki/Main_Page"
 
         # with respect to robots.txt
 
-    def crawl_web(self):
+    def crawl_web(self, keyphrase):
         while not self.frontier.isEmpty() and self.page_limit >= 0:
             [current_seed, current_depth]= self.frontier.pop()
             # add prefix
@@ -59,25 +59,28 @@ class Web_Crawl:
                     # print type(current_seed)
                     url = urllib.urlopen(current_seed)
                     html = url.read()
-
                     # delay at least one second
                     time.sleep(1)
 
+                    if keyphrase == None \
+                        or (keyphrase != None and keyphrase in html):
                     # beautiful soup to parse all the href
-                    soup = BeautifulSoup(html)
+                        soup = BeautifulSoup(html)
+                        # finding next seeds
+                        for a in soup.find_all('a', href = True):
+                            next_seed = a['href']
+                            if self.valid_link(next_seed) and next_seed not in self.visited \
+                                and self.page_limit >= 0:
+                                self.frontier.push([next_seed,current_depth + 1])
+                                # add to visit list
+                                self.visited.append(next_seed)
+                                self.page_limit -= 1
 
-                    # finding next seeds
-                    for a in soup.find_all('a', href = True):
-                        next_seed = a['href']
-                        if self.valid_link(next_seed) and next_seed not in self.visited:
-                            self.frontier.push([next_seed,current_depth + 1])
-                            # add to visit list
-                            self.visited.append(next_seed)
-                            self.page_limit -= 1
                     # debug
                     # for i in self.visited:
                         # print i[:]
 
+    # approvedSites:check for robots.txt
     def approvedSites(self,link):
         try:
             rp = robotparser.RobotFileParser()
@@ -103,18 +106,41 @@ class Web_Crawl:
 
 
 
-    # write my two lists to a file, .txt maybe
-
-    def writetofile(self):
+    # write lists to a file
+    def writetofile(self,outputfile):
         # remains to be done
+        f = open(outputfile, 'w')
         prefix = "https://en.wikipedia.org"
-        self.crawl_web()
         for i in self.visited:
-            print  prefix + i
-        print "total webpage is %d"%len(self.visited)
+            if self.visited[0] == i:
+                f.write(i + '\n')
+            else:
+            # print prefix + i
+                f.write(prefix + i + '\n')
+        f.close
+
+    def getLen(self):
+        return len(self.visited)
+
+    def getvisited(self):
+        return self.visited
 
 #executing the program
 if __name__ == '__main__':
+    outputfile1 = r"/Users/lijian/NEU-Courses/15Fall-Information Retrieval/homework 1/Q1.txt"
     a = Web_Crawl()
-    a.writetofile()
+    a.crawl_web(None)
+    # a.writetofile(outputfile1)
+    A = a.getvisited()
 
+    outputfile2 = r"/Users/lijian/NEU-Courses/15Fall-Information Retrieval/homework 1/Q2.txt"
+    b = Web_Crawl()
+    b.crawl_web("concordance")
+    # b.writetofile(outputfile2)
+    B = b.getvisited()
+
+    sum = 0
+    for i in B:
+        if i in A:
+            sum += 1
+    print "%d / %d"%(sum,b.getLen())
