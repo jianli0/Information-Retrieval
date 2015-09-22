@@ -34,7 +34,7 @@ class Web_Crawl():
         self.frontier.push([self.start_seed, self.start_depth])
         self.visited = []
         self.visited.append(self.start_seed)
-        self.page_limit = 1000
+        self.page_limit = 999
         self.depth_limit = 5
 
 
@@ -43,7 +43,7 @@ class Web_Crawl():
         # with respect to robots.txt
 
     def crawl_web(self, keyphrase):
-        while not self.frontier.isEmpty() and self.page_limit >= 0:
+        while not self.frontier.isEmpty() and self.page_limit > 0:
             [current_seed, current_depth]= self.frontier.pop()
             # add prefix
             prefix = "https://en.wikipedia.org"
@@ -94,7 +94,6 @@ class Web_Crawl():
     # valid_links :
     # start with the prefix http://en.wikipedia.org
     # do not follow links to main page and with more than one ":"
-
     # input: a link, "http://en.wikipedia.org/wiki/Main_Page"
     # output: Boolean, true or false
     def valid_link(self, link):
@@ -104,8 +103,6 @@ class Web_Crawl():
                     return True
         return False
 
-
-
     # write lists to a file
     def writetofile(self,outputfile):
         # remains to be done
@@ -113,12 +110,14 @@ class Web_Crawl():
         prefix = "https://en.wikipedia.org"
         for i in self.visited:
             if self.visited[0] == i:
-                f.write(i + '\n')
+                # f.write(i + '\n')
+                print i
             else:
-            # print prefix + i
-                f.write(prefix + i + '\n')
+                print prefix + i
+                #f.write(prefix + i + '\n')
         f.close
 
+    # for calculating the
     def getLen(self):
         return len(self.visited)
 
@@ -128,19 +127,23 @@ class Web_Crawl():
 #executing the program
 if __name__ == '__main__':
     outputfile1 = r"/Users/lijian/NEU-Courses/15Fall-Information Retrieval/homework 1/Q1.txt"
+
+    # unfocused crawler
     a = Web_Crawl()
     a.crawl_web(None)
-    # a.writetofile(outputfile1)
+    a.writetofile(outputfile1)
     A = a.getvisited()
 
+    # focused crawler
     outputfile2 = r"/Users/lijian/NEU-Courses/15Fall-Information Retrieval/homework 1/Q2.txt"
     b = Web_Crawl()
     b.crawl_web("concordance")
-    # b.writetofile(outputfile2)
+    b.writetofile(outputfile2)
     B = b.getvisited()
 
+    # calculating proportion for focused crawler
     sum = 0
     for i in B:
         if i in A:
             sum += 1
-    print "%d / %d"%(sum,b.getLen())
+    print "%d / %d"%(sum,1000)
