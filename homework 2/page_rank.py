@@ -1,48 +1,37 @@
-# problems
-# 1 how to deal with converge
-# 2 how to find sink nodes
-# 3 how to get L(q)
-
 import math
 import time
+from collections import OrderedDict
+
 class Solution:
-    def __init__(self):
-        file = "/Users/lijian/Dropbox/Courses/15Fall-Information Retrieval/homework 2/wt2g_inlinks.txt"
-
-        # test on file1
-        file1 = "/Users/lijian/Dropbox/Courses/15Fall-Information Retrieval/homework 2/example.txt"
-
-        # lines = [line.rstrip('\n').split() for line in open(file1)]
-
-        f = open(file1)
-        lines = []
-        for line in f:
-            lines.append(line.split())
+    def __init__(self,filename):
+        self.file = filename
 
         self.L = {}
         self.M = {}
         self.P = set()
         self.d = 0.85
 
-        # traverse the lines
-        # get P,L (all pages, out-links)
-        for i in range(len(lines)):
-            self.M[lines[i][0]] = []
-            self.P.add(lines[i][0])
-            for j in range(1, len(lines[i])):
-                # solve M
-                self.M[lines[i][0]].append(lines[i][j])
-                # solve P
-                self.P.add(lines[i][j])
-                # solve L
-                if lines[i][j] in self.L.keys():
-                    self.L[lines[i][j]].append(lines[i][0])
+        with open(self.file) as f:
+            fread = f.read()
+            lines = fread.split("\n")
+            self.P = set(fread.split())
+
+        lines = [line.split() for line in lines if len(line) > 0]
+
+        self.M = dict((line[0],list(set(line[1:]))) for line in lines)
+
+        for p in self.M:
+            for page in self.M[p]:
+                if page in self.L:
+                    self.L[page] += 1
                 else:
-                    self.L[lines[i][j]]= [lines[i][0]]
+                    self.L[page] = 1
+
+        print "top 50 pages by in-link count:"
+        self.sort_by_value(self.L)
 
         self.S = self.P - set(self.L.keys())
         self.N = len(self.P)
-
         self.PR = {}
         self.newPR = {}
 
@@ -62,10 +51,10 @@ class Solution:
                 self.newPR[p] = (1.0 - self.d) / self.N
                 self.newPR[p] += self.d * 1.0 * sinkPR / self.N
                 for q in self.M[p]:
-                    self.newPR[p] += self.d * 1.0 * self.PR[q] / len(self.L[q])
+                    self.newPR[p] += self.d * 1.0 * self.PR[q] / self.L[q]
 
             # calculate converge times
-            if (self.calPer(self.newPR) - self.calPer(self.PR)) < 1:
+            if abs(self.cal_per(self.newPR) - self.cal_per(self.PR)) < 1:
                 self.convergeTime += 1
             else:
                 self.convergeTime = 0
@@ -73,28 +62,40 @@ class Solution:
             for p in self.P:
                 self.PR[p] = self.newPR[p]
 
-            # print perplexity values for each iteration
-            print self.PR
+            #  print perplexity values for each iteration
+            print self.cal_per(self.PR)
 
         return self.PR
 
     # calculate perplextiy for PR
-    def calPer(self, PR):
+    def cal_per(self, PR):
         H = 0.0
-        # for test
-        # print PR
         for p in PR:
             H += PR[p] * math.log(PR[p],2)
         return 2**(-H)
+
+    def sort_by_value(self,dic):
+        sorted_by_inlink = OrderedDict(sorted(dic.items(), key = lambda t : t[1], reverse = True))
+        for i in sorted_by_inlink.items()[0:50]:
+            print i
+
 
 
 
 
 if __name__ == '__main__':
     start_time =  time.time()
-    a = Solution()
-    print a.page_rank()
+
+    # only input: file in in-link format
+    file = "wt2g_inlinks.txt"
+    file1 = "example.txt"
+
+    a = Solution(file)
+    a.sort_by_value(a.page_rank())
+    print "top 50 pages by pagerank"
+
     end_time = time.time()
+
     print "total running time: %d" %(end_time - start_time)
 
 

@@ -1,0 +1,7 @@
+the proportion of pages with no in-links (sources)
+
+the proportion of pages with no out-links (sinks)
+
+the proportion of pages whose PageRank is less than their initial, uniform values
+
+
