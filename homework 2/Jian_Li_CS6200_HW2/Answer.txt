@@ -1,0 +1,10 @@
+Question on the course website
+
+Please hand in: Speculate why these documents have high PageRank values, i.e., why is it that these particular pages are linked to by (possibly) many other pages with (possibly) high PageRank values. Are all of these documents ones that users would likely want to see in response to an appropriate query? Give some examples of ones that are and ones that are not. For those that are not "interesting" documents, why might they have high PageRank values? How do the pages with high PageRank compare to the pages with many in-links? In short, give an analysis of the PageRank results you obtain.
+
+
+
+Answers
+
+Some of the pages have high PageRank values because they have many pages links to them, and these pages have high PageRank values, such as ('WT21-B37-76', 2568), (‘WT21-B37-75', 1704) are the top 2 of in-link numbers, and their PageRank values ('WT21-B37-76', 0.0026944744155488424), (‘WT21-B37-75', 0.0015331790999983674) are also Top 2. However, for some pages , though they have many pages links to them, but their PageRank values are not high, such as ('WT01-B18-225', 1137) ranks third in in-link numbers list, but PageRank values ('WT25-B39-116', 0.0014685014163258476) rank 12. The reason is pages link to it are mostly sink nodes or pages with low PageRank values. Not all of these documents ones that users would likely want to see in response to an appropriate query. This kind of pages are the ones that may disappoint users. 
+

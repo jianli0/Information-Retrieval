@@ -1,6 +1,7 @@
 import math
 import time
 from collections import OrderedDict
+import sys
 
 class Solution:
     def __init__(self,filename):
@@ -19,8 +20,10 @@ class Solution:
         lines = [line.split() for line in lines if len(line) > 0]
 
         self.M = dict((line[0],list(set(line[1:]))) for line in lines)
+        self.M_num = {}
 
         for p in self.M:
+            self.M_num[p] = len(self.M[p])
             for page in self.M[p]:
                 if page in self.L:
                     self.L[page] += 1
@@ -28,7 +31,12 @@ class Solution:
                     self.L[page] = 1
 
         print "top 50 pages by in-link count:"
-        self.sort_by_value(self.L)
+        self.sort_by_value(self.M_num)
+
+        self.no_in_links_num = 0
+        for i in self.M_num:
+            if self.M_num[i] == 0:
+                self.no_in_links_num += 1
 
         self.S = self.P - set(self.L.keys())
         self.N = len(self.P)
@@ -41,9 +49,17 @@ class Solution:
         # init covergeTime
         self.convergeTime = 0
 
+        print "proportion of no in-links"
+        print "%r / %r"%(self.no_in_links_num , self.N)
+        print "proportion of no out-links"
+        print "%r / %r"%(len(self.S) , self.N)
+
 
     def page_rank(self):
-        while self.convergeTime <= 4:
+        print self.cal_per(self.PR)
+        # remember iteration times
+
+        while self.convergeTime <= 3:
             sinkPR = 0
             for p in self.S:
                 sinkPR += self.PR[p]
@@ -79,23 +95,28 @@ class Solution:
         for i in sorted_by_inlink.items()[0:50]:
             print i
 
-
-
-
-
 if __name__ == '__main__':
     start_time =  time.time()
 
     # only input: file in in-link format
-    file = "wt2g_inlinks.txt"
-    file1 = "example.txt"
+    file = sys.argv[1]
 
     a = Solution(file)
-    a.sort_by_value(a.page_rank())
+    page_rank_value = a.page_rank()
+    a.sort_by_value(page_rank_value)
+
+    less_than_init_num = 0
+    # find values less than initial value
+    for i in page_rank_value:
+        if page_rank_value[i] < (1.0 / 183811):
+            less_than_init_num += 1
+
+    print "proportion less than initial value"
+    print "%r / %r" %(less_than_init_num, 183811)
+
     print "top 50 pages by pagerank"
 
     end_time = time.time()
-
     print "total running time: %d" %(end_time - start_time)
 
 
