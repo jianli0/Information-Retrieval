@@ -47,7 +47,9 @@ class Solution:
         tf = self.index()
         with open (self.outFile ,'wb') as f:
             for i in tf.keys():
-                f.write("%r %r\n"%(i, list(tf[i])))
+                f.write("%r\n"%i)
+                f.write("%r\n"%(list(tf[i])))
+
 
 
     # return True if the string is all number
