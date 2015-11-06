@@ -4,9 +4,10 @@ import time
 __author__ ='jian li'
 
 class Solution:
-    def __init__(self,file1,file2):
+    def __init__(self,file1,file2,file3):
         self.inFile = file1
         self.outFile = file2
+        self.tokenFile = file3
 
     # tokenization
     def token(self):
@@ -24,7 +25,8 @@ class Solution:
                 tokendoc[-1].append(content[i])
             i += 1
 
-        return tokendoc
+        self.writeTokenToFile(tokendoc)
+
 
     #inverted index
     def index(self):
@@ -43,14 +45,18 @@ class Solution:
                     tf[j].add((i + 1 , doc[i].count(j)))
         return tf
 
-    def writeToFile(self):
+    def writeTokenToFile(self,tokendoc):
+        with open (self.tokenFile,'wb') as f:
+            for i in tokendoc:
+                f.write("%r\n"%i)
+
+
+    def writeIndexToFile(self):
         tf = self.index()
         with open (self.outFile ,'wb') as f:
             for i in tf.keys():
                 f.write("%r\n"%i)
                 f.write("%r\n"%(list(tf[i])))
-
-
 
     # return True if the string is all number
     def isNum(self,string):
@@ -64,9 +70,13 @@ class Solution:
 if __name__ == '__main__':
     start_time =  time.time()
 
-    inFile , outFile = sys.argv[1] , sys.argv[2]
-    a = Solution(inFile , outFile)
-    a.writeToFile()
+    inFile , outFile, tokenFile = sys.argv[1] , sys.argv[2], sys.argv[3]
+    a = Solution(inFile , outFile, tokenFile)
+    #  a.writeIndexToFile()
+    a.token()
 
     end_time = time.time()
     print "total running time: %d" %(end_time - start_time)
+
+#  run with
+#  python tccorpus.txt index.txt token.txt
