@@ -48,19 +48,6 @@ class Solution:
             lines = fRead.split("\n")
         self.query = [line.split() for line in lines if len(line) > 0]
 
-        #  debug
-        #  print self.index
-        #  print self.avdl
-        #  print self.docLength
-        #  print self.N
-        #  print '-'*50
-        #  for i in range(len(indexFile)):
-            #  if ast.literal_eval(indexFile[i]) == 'portabl':
-                #  print "find it"
-                #  break
-        #  print i
-        #  print ast.literal_eval(indexFile[0]) == 'orthogon'
-
 
     def bm25(self):
         #  deal with each query
@@ -83,16 +70,13 @@ class Solution:
                         ni = 0
                         fi = 0
                     score += self.calScore(ni,fi,K)
+                #  print q, i, score
 
                 eachQueryScores[(q+1,i+1)] = score
-            #  debug
-            #  for i in eachQueryScores.items():
-                #  print i
-
+            # print top 100
             sorted_x = sorted(eachQueryScores.items(), key = operator.itemgetter(1), reverse = True)
-            #  debug
-            #  for x in sorted_x[0:100]:
-                #  print x
+            for x in sorted_x[0:100]:
+                print x
             #  self.writeEachQueryScores(sorted_x[0:100])
 
     #  write top maxNum of scores to results
@@ -103,12 +87,12 @@ class Solution:
                         %(lis[i][0][0],"Q0",lis[i][0][1],i + 1,lis[i][1],"bm25"))
 
     def calScore(self, ni, fi, K):
-        #  print ni,fi,K,self.N
+        #  print ni,fi,K
         t1 = math.log((self.N - ni + 0.5) / (ni + 0.5))
-        t2 = 2.2 * fi / 1.0 * (K + fi) * \
-        t3 = 101 * fi / 1.0 * (100 + fi)
-        print "%r %r %r \n"%(t1,t2,t3)
-        return t1*t2*t3
+        t2 = 2.2 * fi / 1.0 * (K + fi)
+        #  t3 = 101 * fi / 1.0 * (100 + fi)
+        #  print "%r %r %r"%(t1,t2,K)
+        return t1*t2
 
     def calK(self, dl):
         #  print "dl is %d\n"%dl
