@@ -4,10 +4,9 @@ import time
 __author__ ='jian li'
 
 class Solution:
-    def __init__(self,file1,file2,file3):
+    def __init__(self,file1,file2):
         self.inFile = file1
         self.outFile = file2
-        self.tokenFile = file3
 
     # tokenization
     def token(self):
@@ -26,15 +25,12 @@ class Solution:
             i += 1
 
         self.writeTokenToFile(tokendoc)
-
+        return tokendoc
 
     #inverted index
     def index(self):
         tf = {}
         doc = self.token()
-
-        #  print doc
-        #  print len(doc)
 
         for i in range(len(doc)):
             for j in doc[i]:
@@ -43,17 +39,23 @@ class Solution:
                 else:
                     tf[j] = set()
                     tf[j].add((i + 1 , doc[i].count(j)))
-        return tf
+        self.writeIndexToFile(tf)
 
+    #  write token to file
     def writeTokenToFile(self,tokendoc):
-        with open (self.tokenFile,'wb') as f:
-            for i in tokendoc:
-                f.write("%r\n"%i)
+        with open (self.outFile,'wb') as f:
+            f.write("%d\n"%len(tokendoc))
+            avdl = sum(len(i) for i in tokendoc) * 1.0 / len(tokendoc)
+            f.write("%f\n"%avdl)
+            for i in range(len(tokendoc)):
+                f.write("%d\n"%(i + 1))
+                f.write("%d\n"%(len(tokendoc[i])))
+            f.write("-"*50)
+            f.write("\n")
 
-
-    def writeIndexToFile(self):
-        tf = self.index()
-        with open (self.outFile ,'wb') as f:
+    #  write inverted index to file
+    def writeIndexToFile(self,tf):
+        with open (self.outFile ,'ab') as f:
             for i in tf.keys():
                 f.write("%r\n"%i)
                 f.write("%r\n"%(list(tf[i])))
@@ -70,13 +72,13 @@ class Solution:
 if __name__ == '__main__':
     start_time =  time.time()
 
-    inFile , outFile, tokenFile = sys.argv[1] , sys.argv[2], sys.argv[3]
-    a = Solution(inFile , outFile, tokenFile)
-    #  a.writeIndexToFile()
+    inFile , outFile = sys.argv[1] , sys.argv[2]
+    a = Solution(inFile , outFile)
     a.token()
+    a.index()
 
     end_time = time.time()
     print "total running time: %d" %(end_time - start_time)
 
 #  run with
-#  python tccorpus.txt index.txt token.txt
+#  python indexer.py tccorpus.txt index.txt
