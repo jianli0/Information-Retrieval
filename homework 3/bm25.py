@@ -7,15 +7,14 @@ import operator
 __author__ ='jian li'
 
 #  run with
-#  python bm25.py index.txt queries.txt 100
+#  python bm25.py index.txt queries.txt 100 > results.eval
 
 class Solution:
     def __init__(self , file1 , file2 , num):
         self.scores = {}
         self.indexFile = file1
         self.queryFile = file2
-        self.resultsFile = "results.txt"
-        self.maxNum = num
+        self.maxNum = int(num)
 
         # read the inverted index
         with open(self.indexFile) as f:
@@ -38,10 +37,6 @@ class Solution:
         for i in range(0,len(indexFile) - 1,2):
             self.index[ast.literal_eval(indexFile[i])] = ast.literal_eval(indexFile[i + 1])
 
-        #  print self.index['emeri'][0]
-        #  print self.index['emeri'][0][0]
-        #  print self.index['emeri'][0][1]
-
         #  read the query
         with open(self.queryFile) as f:
             fRead = f.read()
@@ -62,40 +57,27 @@ class Solution:
                     if term in self.index.keys():
                         ni = len(self.index[term])
                         fi = 0
-                        for j in self.index[term]:
-                            if (i + 1) == j[0]:
-                                fi = j[1]
-                                break
+                        if (i + 1) in self.index[term]:
+                            fi = self.index[term][i + 1]
                     else:
                         ni = 0
                         fi = 0
                     score += self.calScore(ni,fi,K)
-                #  print q, i, score
-
                 eachQueryScores[(q+1,i+1)] = score
-            # print top 100
-            sorted_x = sorted(eachQueryScores.items(), key = operator.itemgetter(1), reverse = True)
-            for x in sorted_x[0:100]:
-                print x
-            #  self.writeEachQueryScores(sorted_x[0:100])
 
-    #  write top maxNum of scores to results
-    def writeEachQueryScores(self, lis):
-        with open (self.resultsFile,'ab') as f:
-            for i in range(len(lis)):
-                f.write("%-3r %-3r %-5r %-4r %-10.3f %-10r\n"\
-                        %(lis[i][0][0],"Q0",lis[i][0][1],i + 1,lis[i][1],"bm25"))
+            #  print top 100
+            sorted_x = sorted(eachQueryScores.items(), key = operator.itemgetter(1), reverse = True)
+            for i in range(self.maxNum):
+                print "%-5r %r %-5r %-3r %-10f %r"\
+                        %(sorted_x[i][0][0],"Q0",sorted_x[i][0][1],i + 1,sorted_x[i][1],"jianli")
 
     def calScore(self, ni, fi, K):
-        #  print ni,fi,K
         t1 = math.log((self.N - ni + 0.5) / (ni + 0.5))
-        t2 = 2.2 * fi / 1.0 * (K + fi)
-        #  t3 = 101 * fi / 1.0 * (100 + fi)
-        #  print "%r %r %r"%(t1,t2,K)
+        t2 = 2.2 * fi / (K + fi)
+        #  t3 = 101 * 1 / 1.0 * (100 + 1)
         return t1*t2
 
     def calK(self, dl):
-        #  print "dl is %d\n"%dl
         return  1.2 * (0.25 + 0.75 * dl / self.avdl)
 
 if __name__ == '__main__':
@@ -104,5 +86,5 @@ if __name__ == '__main__':
     a = Solution(inFile , outFile, maxNum)
     a.bm25()
     end_time = time.time()
-    print "total running time: %d" %(end_time - start_time)
+    #  print "total running time: %d" %(end_time - start_time)
 

@@ -3,6 +3,9 @@ import time
 
 __author__ ='jian li'
 
+#  run with
+#  python indexer.py tccorpus.txt index.txt
+
 class Solution:
     def __init__(self,file1,file2):
         self.inFile = file1
@@ -20,7 +23,7 @@ class Solution:
         while i < len(content):
             if content[i] == '#':
                 tokendoc.append([])
-            elif not self.isNum(content[i]):
+            elif not content[i].isdigit():
                 tokendoc[-1].append(content[i])
             i += 1
 
@@ -35,13 +38,13 @@ class Solution:
         for i in range(len(doc)):
             for j in doc[i]:
                 if j in tf.keys():
-                    tf[j].add((i + 1 , doc[i].count(j)))
+                    tf[j][i + 1] = doc[i].count(j)
                 else:
-                    tf[j] = set()
-                    tf[j].add((i + 1 , doc[i].count(j)))
+                    tf[j] = {}
+                    tf[j][i + 1] = doc[i].count(j)
         self.writeIndexToFile(tf)
 
-    #  write token to file
+    #  write doc length and avdl and N to file
     def writeTokenToFile(self,tokendoc):
         with open (self.outFile,'wb') as f:
             f.write("%d\n"%len(tokendoc))
@@ -56,18 +59,9 @@ class Solution:
     #  write inverted index to file
     def writeIndexToFile(self,tf):
         with open (self.outFile ,'ab') as f:
-            for i in tf.keys():
+            for i in tf:
                 f.write("%r\n"%i)
-                f.write("%r\n"%(list(tf[i])))
-
-    # return True if the string is all number
-    def isNum(self,string):
-        nums = ['0','1', '2', '3', '4', '5', '6', '7', '8', '9']
-        res = True
-        for i in string:
-            res = res and (i in nums)
-        return res
-
+                f.write("%r\n"%(tf[i]))
 
 if __name__ == '__main__':
     start_time =  time.time()
@@ -80,5 +74,3 @@ if __name__ == '__main__':
     end_time = time.time()
     print "total running time: %d" %(end_time - start_time)
 
-#  run with
-#  python indexer.py tccorpus.txt index.txt
