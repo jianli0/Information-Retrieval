@@ -8,6 +8,7 @@ __author__ ='jian li'
 
 #  run with
 #  python bm25.py index.txt queries.txt 100 > results.eval
+#  python bm25.py index.txt Q1.txt 3204 > results1.results1.eval
 
 class Solution:
     def __init__(self , file1 , file2 , num):
@@ -63,13 +64,15 @@ class Solution:
                         ni = 0
                         fi = 0
                     score += self.calScore(ni,fi,K)
-                eachQueryScores[(q+1,i+1)] = score
+                if score > 0:
+                    eachQueryScores[(q+1,i+1)] = score
+            print len(eachQueryScores)
 
             #  print top 100
-            sorted_x = sorted(eachQueryScores.items(), key = operator.itemgetter(1), reverse = True)
-            for i in range(self.maxNum):
-                print "%-5r %r %-5r %-3r %-10f %r"\
-                        %(sorted_x[i][0][0],"Q0",sorted_x[i][0][1],i + 1,sorted_x[i][1],"jianli")
+            #  sorted_x = sorted(eachQueryScores.items(), key = operator.itemgetter(1), reverse = True)
+            #  for i in range(self.maxNum):
+                #  print "%-5r %r %-5r %-3r %-10f %r"\
+                        #  %(sorted_x[i][0][0],"Q0",sorted_x[i][0][1],i + 1,sorted_x[i][1],"jianli")
 
     def calScore(self, ni, fi, K):
         t1 = math.log((self.N - ni + 0.5) / (ni + 0.5))
