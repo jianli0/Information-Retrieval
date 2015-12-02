@@ -9,6 +9,7 @@ __author__ ='jian li'
 #  run with
 #  python bm25.py index.txt queries.txt 100 > results.eval
 #  python bm25.py index.txt Q1.txt 3204 > results1.results1.eval
+#  python bm25.py index.txt Q2.txt 3204 > results2.eval
 
 class Solution:
     def __init__(self , file1 , file2 , num):

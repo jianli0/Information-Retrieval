@@ -1,16 +1,9 @@
 	Lucene 		BM25
-Q1	440		0
+Q1	440		871
 
-Q2	1579		1579
+Q2	1579		1632
 
-Q3	272		78
+Q3	272		1386
 
-Q4	1529		1465
+Q4	1529		1540
 
-(Q1:	portable operating systems
-
- Q2:	code optimization for space efficiency
-
- Q3:	parallel algorithms
-
- Q4:	parallel processor in information retrieval)

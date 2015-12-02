@@ -13,6 +13,7 @@ python sortedFreqList.py termFrequency.txt sortedFreqList.txt
 
 
 2) files:
+	readme.txt
 	source code:
 		sortedFreqList.py ( sort the term in frequency decreasing order and draw Zipfian Curve)
 		src -> HW4.java (index and retrieval with simple analyzer)
@@ -22,7 +23,7 @@ python sortedFreqList.py termFrequency.txt sortedFreqList.txt
 	Zipfian Curve:
 		zipf.png
 
-	readme.txt
+	
 
 	top100_Q_1.txt 
 	top100_Q_2.txt 
