@@ -21,6 +21,13 @@ class Solution:
         self.ideaDcgTable = [0]
         self.ndcgTable = []
 
+        # deal with p20
+        self.p20 = []
+
+        # deal with average precision query
+        self.avg = {1:[], 2:[], 3:[]}
+
+
         # read the resultFile from homework3
         with open(self.resultFile) as f:
             lines = f.read().split("\n")
@@ -44,20 +51,14 @@ class Solution:
                         self.relevance[mapid].append(ast.literal_eval(element[2][5:]))
                     else:
                         self.relevance[mapid] = [ast.literal_eval(element[2][5:])]
-        print self.relevance
+        #  print self.relevance
         #  {1: [1523, 2080, 2246, 2629, 3127]}
 
     def precision(self, doc, relevantNum):
-        if doc[4] == 1:
-            return (relevantNum + 1)* 1.0 / ast.literal_eval(doc[1])
-        else:
-            return relevantNum * 1.0 / ast.literal_eval(doc[1])
+        return relevantNum * 1.0 / ast.literal_eval(doc[1])
 
     def recall(self, doc, relevantNum, relevantTotal):
-        if doc[4] == 1:
-            return (relevantNum + 1)* 1.0 / relevantTotal
-        else:
-            return relevantNum * 1.0 / relevantTotal
+        return relevantNum * 1.0 / relevantTotal
 
     def ndcg(self, doc):
         ideaDcg = 1 / math.log(ast.literal_eval(doc[1]) + 1, 2)
@@ -73,8 +74,24 @@ class Solution:
         return self.ndcgTable[-1]
 
 
-    def p20(self):
-        pass
+    def writeP20(self):
+        with open ("table.txt", 'a') as f:
+            f.write("\n");
+            f.write("P@20 for three queries are : \n")
+            for i in self.p20:
+                f.write("%r \n"%i)
+
+    def writeMAP(self):
+        with open ("table.txt", 'a') as f:
+            f.write("\n");
+            f.write("MAP value is \n")
+            sumAvg = 0
+            for i in self.avg:
+                sumAvg += sum(self.avg[i]) / float(len(self.avg[i]))
+
+            MAP = sumAvg / len(self.avg.keys())
+            f.write("%r \n"%MAP)
+
 
     def writeToFile(self):
         # for each query
@@ -85,27 +102,34 @@ class Solution:
             relevantNum = 0
             # for each retrived document
             for j in self.output[(i - 1) * 100 : i * 100]:
-                #  print "j[2] is %r, relevance[i] is %r"%(ast.literal_eval(j[2]), self.relevance[i])
-                #  print  ast.literal_eval(j[2]) in self.relevance[i]
                 if ast.literal_eval(j[2]) in self.relevance[i]:
                     j[4] = 1
                     relevantNum += 1
-                    print j
+                    self.avg[i].append(self.precision(j, relevantNum))
+                    #  print j
                 else:
                     j[4] = 0
                 j[5] = self.precision(j, relevantNum)
                 j[6] = self.recall(j,relevantNum,relevantTotal)
                 j[7] = self.ndcg(j)
 
+                #  find P@20
+                if self.output.index(j) == ((i - 1)*100 + 19):
+                    self.p20.append(j[5])
+
         with open("table.txt",'wb') as f:
             for i in self.output:
                 # queryid rank doc_id doc_score relevance precision recall ndcg
-                f.write(" ".join(str(j) for j in i))
-                f.write('\n')
                 # TODO 3
-                #  f.write('%r %3r %4r %10.6f %r %10.6f %10.6f %10.6f\n'%\
-                        #  i[0], i[1], i[2], ast.literal_eval(i[3]), i[4], ast.literal_eval(i[5]),\
-                        #  ast.literal_eval(i[6]), ast.literal_eval(i[7]))
+                # orginal format
+                #  f.write(" ".join(str(j) for j in i))
+                #  f.write('\n')
+
+                #  trying beautiful format
+                f.write('%r %3r %4r %10.5f %r %10.5f %10.5f %10.5f\n'%\
+                        (ast.literal_eval(i[0]),ast.literal_eval(i[1]),ast.literal_eval(i[2]),\
+                        ast.literal_eval(i[3]), i[4], i[5], i[6], i[7]))
+                #  f.write("%r %r %r %r %r %r %r %r"%(i[0],  i[1],  i[2],  i[3],  i[4],  i[5],  i[6],  i[7]))
         #  #  for i in self.output:
             #  print i
 
@@ -119,5 +143,7 @@ if __name__ == '__main__':
     result , relevance = sys.argv[1], sys.argv[2]
     a = Solution(result,relevance)
     a.writeToFile()
+    a.writeP20()
+    a.writeMAP()
 
 
