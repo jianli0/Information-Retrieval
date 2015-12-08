@@ -60,9 +60,14 @@ class Solution:
     def recall(self, doc, relevantNum, relevantTotal):
         return relevantNum * 1.0 / relevantTotal
 
-    def ndcg(self, doc):
+    def ndcg(self, doc,num):
         ideaDcg = 1 / math.log(ast.literal_eval(doc[1]) + 1, 2)
-        self.ideaDcgTable.append(self.ideaDcgTable[-1] + ideaDcg)
+
+        if num > 0:
+            self.ideaDcgTable.append(self.ideaDcgTable[-1] + ideaDcg)
+        else:
+            self.ideaDcgTable.append(self.ideaDcgTable[-1])
+
 
         if doc[4] == 1:
             self.DcgTable.append(self.DcgTable[-1] + ideaDcg)
@@ -95,10 +100,14 @@ class Solution:
 
     def writeToFile(self):
         # for each query
-
         #TODO 1
         for i in range(1,4):
+            self.DcgTable = [0]
+            self.ideaDcgTable = [0]
+            self.ndcgTable = []
+
             relevantTotal = len(self.relevance[i])
+            new_relevantTotal = relevantTotal
             relevantNum = 0
             # for each retrived document
             for j in self.output[(i - 1) * 100 : i * 100]:
@@ -111,7 +120,8 @@ class Solution:
                     j[4] = 0
                 j[5] = self.precision(j, relevantNum)
                 j[6] = self.recall(j,relevantNum,relevantTotal)
-                j[7] = self.ndcg(j)
+                j[7] = self.ndcg(j,new_relevantTotal)
+                new_relevantTotal -= 1
 
                 #  find P@20
                 if self.output.index(j) == ((i - 1)*100 + 19):
@@ -137,7 +147,7 @@ class Solution:
         # write results to Q1_table, Q2_table, Q3_table
 
 # run with
-#  python hw4.py results.txt relevance.txt
+#  python hw5.py results.txt relevance.txt
 
 if __name__ == '__main__':
     result , relevance = sys.argv[1], sys.argv[2]
