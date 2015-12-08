@@ -66,6 +66,8 @@ class Solution:
     def writeModel(self):
         self.ignoreLessThan5()
         with open('pos'+ self.model,'wb') as f:
+            f.write("%f\n"%self.Ppos)
+
             for i in self.posModel:
                 f.write(i)
                 f.write('\n')
@@ -73,6 +75,7 @@ class Solution:
 
         with open('neg'+ self.model,'wb') as f:
             for j in self.negModel:
+                f.write("%f\n"%self.Pneg)
                 f.write(j)
                 f.write('\n')
                 f.write('%r\n'%self.negModel[j])
