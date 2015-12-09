@@ -19,10 +19,6 @@ class Solution:
         self.posModel = {}
         self.negModel = {}
 
-        self.top20Pos = {}
-        self.top20Neg = {}
-
-
     def readDocs(self):
         self.posNum = len(os.listdir(self.posDir))
         self.negNum = len(os.listdir(self.negDir))
@@ -85,11 +81,6 @@ class Solution:
                 f.write('%r\n'%self.negModel[j])
 
     # track top 20 positive and negative terms
-    def top20Term(self):
-        common = list(set(self.posModel.keys()) & set(self.negModel.keys()))
-        for i in common:
-            self.top20Pos[i] = self.posModel[i] * 1.0 / self.negModel[i]
-
 
 
 

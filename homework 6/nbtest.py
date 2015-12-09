@@ -5,6 +5,7 @@ import math
 from collections import OrderedDict
 
 class Solution:
+    # read parameters for postive and negative models
     def __init__(self,modelfile,directory, predictFile):
         self.model = modelfile
         self.directory = directory
@@ -20,6 +21,7 @@ class Solution:
 
         self.top20Pos = {}
         self.top20Neg = {}
+        self.result = {}
 
         with open('pos'+self.model) as f:
             lines = f.read().split('\n')
@@ -37,23 +39,54 @@ class Solution:
             for i in range(1,len(lines) - 1,2):
                 self.negModel[lines[i]] = ast.literal_eval(lines[i + 1])
                 self.negTotal += ast.literal_eval(lines[i + 1])
-
             self.negV = len(self.negModel.keys())
 
-        #  print self.posModel
-        #  print self.posTotal
-        #  print self.posModel
-
         # start test and write results to outputFile
-    def test(self,directory,outputFile):
-        return 0
+    def test(self):
+        for file in os.listdir(os.getcwd() + self.directory):
+            self.result[file] = self.testForSingleFile(os.getcwd() + self.directory + '/' + file)
+
+        with open(self.predictFile, 'wb') as f:
+            for i in self.result:
+                f.write("%8r %8r %10.5f %10.5f\n"%(i,self.result[i][0],self.result[i][1],self.result[i][2]))
+
+        self.result = {}
 
     # test for a single File
     # return 1 : pos, 0 : neg
     def testForSingleFile(self,file):
         # token file and
-        return 0
+        negScore = self.testForNeg(file)
+        posScore = self.testForPos(file)
+        print posScore
+        print negScore
+        if posScore > negScore:
+            return ["pos",posScore,negScore]
+        else:
+            return ["neg",posScore,negScore]
 
+    def testForPos(self,file):
+        score = 0
+        with open(file) as f:
+            lines = f.read().split("\n")
+            for line in lines:
+                for j in line.split():
+                    if j in self.posModel.keys():
+                        score += math.log((self.posModel[j] + 1) * 1.0 / (self.posTotal + self.posV),2)
+            return score * self.Ppos
+
+    def testForNeg(self,file):
+        score = 0
+        score *= self.Pneg
+        with open(file) as f:
+            lines = f.read().split("\n")
+            for line in lines:
+                for j in line.split():
+                    if j in self.negModel.keys():
+                        score += math.log((self.negModel[j] + 1) * 1.0 / (self.negTotal + self.negV),2)
+            return score * self.Pneg
+
+    # top 20 terms
     def top20Term(self):
         common = list(set(self.posModel.keys()) & set(self.negModel.keys()))
         for i in common:
@@ -80,5 +113,6 @@ class Solution:
 if __name__ == '__main__':
     modelfile ,testDir ,predFile = sys.argv[1], sys.argv[2] , sys.argv[3]
     a = Solution(modelfile, testDir,predFile)
+    a.test()
     #  a.top20Term()
 
